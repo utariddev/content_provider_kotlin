@@ -8,17 +8,21 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE: Int = 1
+    private var binding: ActivityMainBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         requestPerm()
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view: View = binding!!.root
+        setContentView(view)
     }
 
     private fun getContacts() {
