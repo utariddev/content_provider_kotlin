@@ -7,22 +7,42 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import org.utarid.contentprovider.databinding.ActivityMainBinding
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE: Int = 1
+    private var globalContactsList: MutableList<String> = ArrayList<String>()
     private var binding: ActivityMainBinding? = null
+    private var mAdapter: ContactsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestPerm()
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view: View = binding!!.root
         setContentView(view)
+
+        binding!!.btnGetContacts.setOnClickListener {
+            prepareRecyclerView()
+            requestPerm()
+        }
+    }
+
+    private fun prepareRecyclerView() {
+
+        val recyclerView: RecyclerView = binding!!.recyclerView
+        mAdapter = ContactsAdapter(globalContactsList)
+        val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
+        recyclerView.layoutManager = mLayoutManager
+        recyclerView.itemAnimator = DefaultItemAnimator()
+        recyclerView.adapter = mAdapter
     }
 
     private fun getContacts() {
@@ -34,17 +54,20 @@ class MainActivity : AppCompatActivity() {
 
         when (cursor?.count) {
             null -> {
+                //error
             }
 
             0 -> {
+                //no contact
             }
 
             else -> {
                 while (cursor.moveToNext()) {
-                    var data: String = cursor.getString(cursor.getColumnIndex(projectionData))
+                    val data: String = cursor.getString(cursor.getColumnIndex(projectionData))
+                    globalContactsList.add(data)
                 }
-
-                cursor.close();
+                cursor.close()
+                mAdapter?.notifyDataSetChanged()
             }
         }
     }
